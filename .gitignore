@@ -1,4 +1,6 @@
 .DS_Store
 db.sqlite3
 .venv/
-settings.py
+market/settings.py
+__pycache__/
+
