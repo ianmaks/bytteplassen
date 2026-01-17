@@ -13,7 +13,7 @@ class Hobby(models.Model):
         SERVICE = "S", _("Service")
         ITEM = "I", _("Item")
 
-    hobby_output = models.CharField(
+    output_type = models.CharField(
         max_length=1,
         choices=OutputType,
         default=OutputType.PRODUCT,
@@ -33,3 +33,12 @@ class UserHasHobby(models.Model):
     class Meta:
         verbose_name = "Claimed hobby"
         verbose_name_plural = "Claimed hobbies"
+
+
+class Vote(models.Model):
+    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Vote"
+        verbose_name_plural = "Votes"

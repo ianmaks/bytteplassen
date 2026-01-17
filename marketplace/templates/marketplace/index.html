@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8" />
+  <title>My test page</title>
+  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
+
+</head>
+
+<body>
+  <div class="card">
+    <h1>Hobbies</h1>
+    {% if all_hobbies %}
+    <ul>
+      {% for hobby in all_hobbies%}
+      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ hobby.name }} : {{hobby.votes}}
+        </a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no hobbies.</p>
+    {% endif %}
+  </div>
+</body>
+
+</html>

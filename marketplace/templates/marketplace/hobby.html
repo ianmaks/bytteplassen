@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{hobby.name}}</title>
+    <link rel="stylesheet" href="{% static 'marketplace/index.css' %}" />
+  </head>
+
+  <body>
+    <div class="card">
+      {% if hobby %}
+      <p>{{ hobby.name }}</p>
+      
+      <form method="post" actions="{% url 'vote' hobby.id %}">
+
+      {% if voted %}
+      <p>Votes: You voted for {{hobby.name}}</p>
+      <button> Remove vote </button>
+      {% else %}
+      <p>You have not voted for {{hobby.name}}</p>
+      <button> Vote </button>
+      {% endif %}
+      {% else %}
+      <p>There are no hobbies.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
