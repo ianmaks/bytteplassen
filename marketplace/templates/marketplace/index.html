@@ -15,7 +15,7 @@
     {% if all_hobbies %}
     <ul>
       {% for hobby in all_hobbies%}
-      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ hobby.name }} : {{hobby.votes}}
+      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ hobby.name }} : {{hobby.vote_count}}
         </a></li>
       {% endfor %}
     </ul>

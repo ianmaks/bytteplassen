@@ -12,15 +12,21 @@
       {% if hobby %}
       <p>{{ hobby.name }}</p>
       
-      <form method="post" actions="{% url 'vote' hobby.id %}">
+      <form method="post" action="{% url 'vote' hobby.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ request.user.id }}">
+        <input type="hidden" name="hobby" value="{{ hobby.id }}">
 
       {% if voted %}
       <p>Votes: You voted for {{hobby.name}}</p>
-      <button> Remove vote </button>
+      <input type="hidden" name="vote" value="0">
+      <button type="submit"> Remove vote </button>
       {% else %}
       <p>You have not voted for {{hobby.name}}</p>
-      <button> Vote </button>
+      <input type="hidden" name="vote" value="1">
+      <button type="submit"> Vote </button>
       {% endif %}
+      </form>
       {% else %}
       <p>There are no hobbies.</p>
       {% endif %}

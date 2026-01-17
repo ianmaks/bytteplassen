@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+import os
 
 import dj_database_url
 import environ
@@ -25,8 +26,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "XA?[edoQ()gNgk^44wpRo7\YZ}@L.~b4JX%_|~y&qEBgULy+_n"
+#os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +42,7 @@ ALLOWED_HOSTS = ["market-hm4h.onrender.com", "127.0.0.1", "localhost"]
 # Application definition
 
 INSTALLED_APPS = [
+    "users.apps.UsersConfig",
     "marketplace.apps.MarketplaceConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -107,6 +113,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "users.User"
+
+LOGIN_REDIRECT_URL = "/marketplace/"
+LOGOUT_REDICRECT_URL = "/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

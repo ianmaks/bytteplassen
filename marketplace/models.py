@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 
 class User(models.Model):
@@ -19,7 +20,6 @@ class Hobby(models.Model):
         default=OutputType.PRODUCT,
     )
     name = models.CharField(max_length=64)
-    votes = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Hobby"
@@ -36,8 +36,12 @@ class UserHasHobby(models.Model):
 
 
 class Vote(models.Model):
-    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    hobby = models.ForeignKey(
+        Hobby,
+        related_name="votes",
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Vote"
