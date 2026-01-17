@@ -26,7 +26,7 @@ SECRET_KEY = "XA?[edoQ()gNgk^44wpRo7\YZ}@L.~b4JX%_|~y&qEBgULy+_n"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['market-hm4h.onrender.com']
 
 
 # Application definition
