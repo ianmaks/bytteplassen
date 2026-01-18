@@ -16,8 +16,7 @@
     {% if all_offerings %}
     <ul>
       {% for offering in all_offerings%}
-      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ offering.name }}
-        </a></li>
+      <li><a href="{% url 'offering_detail' offering.id %}">{{ offering.name }}</a></li>
       {% endfor %}
     </ul>
     {% else %}

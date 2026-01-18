@@ -4,8 +4,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
-from .models import Hobby, Vote, Offering
-from .forms import OfferingForm
+from .models import Hobby, Vote, Offering, Trade
+from .forms import OfferingForm, TradeForm
 from django.db.models import Count, Case, When, Value, IntegerField
 
 
@@ -82,4 +82,50 @@ def add_offering(request):
         form = OfferingForm()
     template = loader.get_template("marketplace/add_offering.html")
     context = {'form': form}
+    return HttpResponse(template.render(context, request))
+
+def offering_detail(request, offering_id):
+    offering = Offering.objects.get(id=offering_id)
+    is_owner = offering.owner == request.user
+    
+    if request.method == 'POST':
+        if is_owner:
+            if 'update_stock' in request.POST:
+                offering.stock_status = request.POST.get('stock_status')
+                offering.save()
+                return redirect('offering_detail', offering_id=offering_id)
+            elif 'delete' in request.POST:
+                offering.delete()
+                return redirect('index')
+            elif 'respond_trade' in request.POST:
+                trade_id = request.POST.get('trade_id')
+                action = request.POST.get('action')
+                trade = Trade.objects.get(id=trade_id)
+                if action == 'accept':
+                    trade.status = 'A'
+                elif action == 'reject':
+                    trade.status = 'R'
+                elif action == 'too_low':
+                    trade.status = 'T'
+                trade.save()
+                return redirect('offering_detail', offering_id=offering_id)
+        else:
+            form = TradeForm(request.POST, user=request.user)
+            if form.is_valid():
+                trade = form.save(commit=False)
+                trade.target_offering = offering
+                trade.proposer = request.user
+                trade.save()
+                return redirect('offering_detail', offering_id=offering_id)
+    
+    trades = offering.incoming_trades.all() if is_owner else None
+    trade_form = TradeForm(user=request.user) if not is_owner else None
+    
+    template = loader.get_template("marketplace/offering_detail.html")
+    context = {
+        'offering': offering,
+        'is_owner': is_owner,
+        'trades': trades,
+        'trade_form': trade_form,
+    }
     return HttpResponse(template.render(context, request))

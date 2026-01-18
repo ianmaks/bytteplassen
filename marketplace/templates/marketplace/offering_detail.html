@@ -1,0 +1,68 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8" />
+  <title>{{ offering.name }}</title>
+  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
+</head>
+
+<body>
+  <div class="card">
+    <h1>{{ offering.name }}</h1>
+    <p><strong>Description:</strong> {{ offering.description }}</p>
+    <p><strong>Hobby:</strong> {{ offering.hobby }}</p>
+    <p><strong>Producer:</strong> {{ offering.owner.username }}</p>
+    <p><strong>Type:</strong> {{ offering.get_offering_type_display }}</p>
+    {% if offering.stock_status %}
+    <p><strong>Stock Status:</strong> {{ offering.get_stock_status_display }}</p>
+    {% endif %}
+
+    {% if is_owner %}
+      <h2>Manage Offering</h2>
+      <form method="post">
+        {% csrf_token %}
+        <label for="stock_status">Stock Status:</label>
+        <select name="stock_status" id="stock_status">
+          <option value="">None</option>
+          <option value="I" {% if offering.stock_status == 'I' %}selected{% endif %}>In Stock</option>
+          <option value="O" {% if offering.stock_status == 'O' %}selected{% endif %}>Out of Stock</option>
+          <option value="D" {% if offering.stock_status == 'D' %}selected{% endif %}>Made on Demand</option>
+        </select>
+        <button type="submit" name="update_stock">Update Stock Status</button>
+        <button type="submit" name="delete" onclick="return confirm('Are you sure you want to delete this offering?')">Delete Offering</button>
+      </form>
+
+      <h2>Incoming Trade Offers</h2>
+      {% for trade in trades %}
+        <div class="trade">
+          <p><strong>From:</strong> {{ trade.proposer.username }}</p>
+          <p><strong>Offering:</strong> {{ trade.offered_offering.name }} (Quantity: {{ trade.quantity }})</p>
+          <p><strong>Message:</strong> {{ trade.message }}</p>
+          <p><strong>Status:</strong> {{ trade.get_status_display }}</p>
+          {% if trade.status == 'P' %}
+            <form method="post" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="trade_id" value="{{ trade.id }}">
+              <button type="submit" name="action" value="accept">Accept</button>
+              <button type="submit" name="action" value="reject">Reject</button>
+              <button type="submit" name="action" value="too_low">Too Low</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <h2>Make a Trade Offer</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ trade_form.as_p }}
+        <button type="submit">Submit Trade Offer</button>
+      </form>
+    {% endif %}
+
+    <a href="{% url 'index' %}">Back to Offerings</a>
+  </div>
+</body>
+
+</html>

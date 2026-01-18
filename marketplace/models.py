@@ -73,11 +73,38 @@ class Offering(models.Model):
     stock_status = models.CharField(
         max_length=1,
         choices=StockStatus,
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
     )
 
     class Meta:
         verbose_name = "Offering"
         verbose_name_plural = "Offerings"
+
+    def __str__(self):
+        return self.name
+
+class Trade(models.Model):
+    class TradeStatus(models.TextChoices):
+        PENDING = "P", _("Pending")
+        ACCEPTED = "A", _("Accepted")
+        REJECTED = "R", _("Rejected")
+        TOO_LOW = "T", _("Too low price")
+
+    target_offering = models.ForeignKey(Offering, related_name='incoming_trades', on_delete=models.CASCADE)
+    offered_offering = models.ForeignKey(Offering, related_name='outgoing_trades', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    message = models.TextField()
+    status = models.CharField(
+        max_length=1,
+        choices=TradeStatus,
+        default=TradeStatus.PENDING,
+    )
+    proposer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Trade"
+        verbose_name_plural = "Trades"
     
