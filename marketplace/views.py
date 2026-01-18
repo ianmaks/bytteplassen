@@ -1,18 +1,33 @@
 import json
 
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
-from .models import Hobby, Vote
-from django.db.models import Count
+from .models import Hobby, Vote, Offering
+from .forms import OfferingForm
+from django.db.models import Count, Case, When, Value, IntegerField
 
 
 
 # Create your views here.
 def index(request):
-    all_hobbies = Hobby.objects.annotate(vote_count=Count('votes')).order_by("-vote_count")
+    all_offerings = Offering.objects.annotate(
+        priority=Case(
+            When(stock_status__in=['I', 'D'], then=Value(1)),
+            When(stock_status='O', then=Value(2)),
+            default=Value(1),
+            output_field=IntegerField()
+        ),
+        vote_count=Count('hobby__votes')
+    ).order_by('priority', '-vote_count')
     template = loader.get_template("marketplace/index.html")
+    context = {"all_offerings": all_offerings}
+    return HttpResponse(template.render(context, request))
+
+def hobbies(request):
+    all_hobbies = Hobby.objects.annotate(vote_count=Count('votes')).order_by("-vote_count")
+    template = loader.get_template("marketplace/hobbies.html")
     context = {"all_hobbies": all_hobbies}
     return HttpResponse(template.render(context, request))
 
@@ -54,3 +69,17 @@ def vote(request, hobby_id):
 
 def user(request, user_id):
     return HttpResponse("You're looking at this user")
+
+def add_offering(request):
+    if request.method == 'POST':
+        form = OfferingForm(request.POST)
+        if form.is_valid():
+            offering = form.save(commit=False)
+            offering.owner = request.user
+            offering.save()
+            return redirect('index')
+    else:
+        form = OfferingForm()
+    template = loader.get_template("marketplace/add_offering.html")
+    context = {'form': form}
+    return HttpResponse(template.render(context, request))

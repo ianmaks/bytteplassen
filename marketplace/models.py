@@ -21,6 +21,9 @@ class Hobby(models.Model):
     )
     name = models.CharField(max_length=64)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = "Hobby"
         verbose_name_plural = "Hobbies"
@@ -46,3 +49,35 @@ class Vote(models.Model):
     class Meta:
         verbose_name = "Vote"
         verbose_name_plural = "Votes"
+
+class Offering(models.Model):
+    class OfferingType(models.TextChoices):
+        PRODUCT = "P", _("Product")
+        SERVICE = "S", _("Service")
+
+    class StockStatus(models.TextChoices):
+        IN_STOCK = "I", _("In stock")
+        OUT_OF_STOCK = "O", _("Out of stock")
+        MADE_ON_DEMAND = "D", _("Made on demand")
+
+
+    name = models.CharField(max_length=100)
+    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    description = models.TextField()
+    offering_type = models.CharField(
+        max_length=1,
+        choices=OfferingType,
+        default=OfferingType.PRODUCT,
+    )
+    stock_status = models.CharField(
+        max_length=1,
+        choices=StockStatus,
+        blank=False,
+        null=False,
+    )
+
+    class Meta:
+        verbose_name = "Offering"
+        verbose_name_plural = "Offerings"
+    

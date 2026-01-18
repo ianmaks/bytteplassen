@@ -1,0 +1,23 @@
+{% load static %}
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Add New Offering</title>
+  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
+</head>
+
+<body>
+  <div class="card">
+    <h1>Add New Offering</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Add Offering</button>
+    </form>
+    <a href="{% url 'index' %}">Back to Offerings</a>
+  </div>
+</body>
+
+</html>

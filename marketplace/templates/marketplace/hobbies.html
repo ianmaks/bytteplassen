@@ -11,17 +11,16 @@
 
 <body>
   <div class="card">
-    <h1>offerings</h1>
-    <a href="{% url 'add_offering' %}"><button>Add New Offering</button></a>
-    {% if all_offerings %}
+    <h1>Hobbies</h1>
+    {% if all_hobbies %}
     <ul>
-      {% for offering in all_offerings%}
-      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ offering.name }}
+      {% for hobby in all_hobbies%}
+      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ hobby.name }} : {{hobby.vote_count}}
         </a></li>
       {% endfor %}
     </ul>
     {% else %}
-    <p>There are no offerings.</p>
+    <p>There are no hobbies.</p>
     {% endif %}
   </div>
 </body>
