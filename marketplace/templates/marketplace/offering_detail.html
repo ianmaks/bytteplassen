@@ -69,14 +69,14 @@
         </form>
     </div>
 
-    <!-- Owner Section: Incoming Trade Offers -->
+    <!-- Owner Section: Incoming Trade Offers (Pending) -->
     <div class="bg-white rounded-xl shadow-sm p-6">
         <h2 class="text-lg font-semibold text-warm-text mb-4">Incoming Trade Offers</h2>
 
-        {% if trades %}
+        {% if pending_trades %}
         <div class="space-y-4">
-            {% for trade in trades %}
-            <div class="border border-gray-100 rounded-lg p-4">
+            {% for trade in pending_trades %}
+            <div class="border border-amber-200 bg-amber-50 rounded-lg p-4">
                 <div class="flex items-start justify-between mb-3">
                     <div>
                         <p class="font-medium text-warm-text">{{ trade.proposer.username }}</p>
@@ -84,24 +84,12 @@
                             Offering: <strong>{{ trade.offered_offering.name }}</strong> (x{{ trade.quantity }})
                         </p>
                     </div>
-                    <div>
-                        {% if trade.status == 'P' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-amber-100 text-amber-700">Pending</span>
-                        {% elif trade.status == 'A' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">Accepted</span>
-                        {% elif trade.status == 'R' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">Rejected</span>
-                        {% elif trade.status == 'T' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700">Too Low</span>
-                        {% endif %}
-                    </div>
                 </div>
 
                 {% if trade.message %}
                 <p class="text-warm-muted text-sm mb-3">"{{ trade.message }}"</p>
                 {% endif %}
 
-                {% if trade.status == 'P' %}
                 <form method="post" class="flex gap-2">
                     {% csrf_token %}
                     <input type="hidden" name="trade_id" value="{{ trade.id }}">
@@ -119,14 +107,67 @@
                         Too Low
                     </button>
                 </form>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-warm-muted">No trade offers yet.</p>
+        <p class="text-warm-muted">No pending trade offers.</p>
         {% endif %}
     </div>
+
+    <!-- Owner Section: Accepted Trades -->
+    {% if accepted_trades %}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Accepted Trades</h2>
+        <div class="space-y-4">
+            {% for trade in accepted_trades %}
+            <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="font-medium text-warm-text">{{ trade.proposer.username }}</p>
+                        <p class="text-sm text-warm-muted">
+                            Offering: <strong>{{ trade.offered_offering.name }}</strong> (x{{ trade.quantity }})
+                        </p>
+                        {% if trade.message %}
+                        <p class="text-warm-muted text-sm mt-2">"{{ trade.message }}"</p>
+                        {% endif %}
+                    </div>
+                    <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">Accepted</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Owner Section: Rejected Trades -->
+    {% if rejected_trades %}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Rejected Trades</h2>
+        <div class="space-y-4">
+            {% for trade in rejected_trades %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="font-medium text-warm-text">{{ trade.proposer.username }}</p>
+                        <p class="text-sm text-warm-muted">
+                            Offering: <strong>{{ trade.offered_offering.name }}</strong> (x{{ trade.quantity }})
+                        </p>
+                        {% if trade.message %}
+                        <p class="text-warm-muted text-sm mt-2">"{{ trade.message }}"</p>
+                        {% endif %}
+                    </div>
+                    {% if trade.status == 'R' %}
+                    <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">Rejected</span>
+                    {% else %}
+                    <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700">Too Low</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     {% else %}
     <!-- Non-Owner Section: Make Trade Offer -->
@@ -185,6 +226,59 @@
             </button>
         </form>
     </div>
+
+    <!-- Your Trade Proposals -->
+    {% if my_trades %}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Your Trade Proposals</h2>
+        <div class="space-y-4">
+            {% for trade in my_trades %}
+            <div class="border border-gray-100 rounded-lg p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <p class="text-sm text-warm-muted">
+                            You offered: <strong class="text-warm-text">{{ trade.offered_offering.name }}</strong>
+                        </p>
+                    </div>
+                    <div>
+                        {% if trade.status == 'P' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-amber-100 text-amber-700">Pending</span>
+                        {% elif trade.status == 'A' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">Accepted</span>
+                        {% elif trade.status == 'R' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">Rejected</span>
+                        {% elif trade.status == 'T' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700">Too Low</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if trade.message %}
+                <p class="text-warm-muted text-sm mb-3">"{{ trade.message }}"</p>
+                {% endif %}
+
+                {% if trade.status == 'P' %}
+                <form method="post" class="flex items-center gap-3 mt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="my_trade_id" value="{{ trade.id }}">
+                    <label class="text-sm text-warm-muted">Qty:</label>
+                    <input type="number" name="quantity" value="{{ trade.quantity }}" min="1"
+                           class="w-20 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:border-terra-400 outline-none">
+                    <button type="submit" name="update_my_trade"
+                            class="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                        Update
+                    </button>
+                    <button type="submit" name="delete_my_trade"
+                            onclick="return confirm('Withdraw this trade proposal?')"
+                            class="px-3 py-1.5 text-sm border border-blue-400 text-blue-500 rounded-lg hover:bg-blue-50 transition">
+                        Withdraw
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     {% else %}
     <div class="bg-white rounded-xl shadow-sm p-6 text-center">
         <p class="text-warm-muted mb-4">Log in to propose a trade</p>

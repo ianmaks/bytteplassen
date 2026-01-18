@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
 from .models import Hobby, Vote, Offering, Trade
 from .forms import OfferingForm, TradeForm
 from django.db.models import Count, Case, When, Value, IntegerField
@@ -103,29 +104,50 @@ def offering_detail(request, offering_id):
                 trade = Trade.objects.get(id=trade_id)
                 if action == 'accept':
                     trade.status = 'A'
+                    messages.success(request, f'Trade from {trade.proposer.username} accepted!')
                 elif action == 'reject':
                     trade.status = 'R'
+                    messages.info(request, f'Trade from {trade.proposer.username} rejected.')
                 elif action == 'too_low':
                     trade.status = 'T'
+                    messages.info(request, f'Trade from {trade.proposer.username} marked as too low.')
                 trade.save()
                 return redirect('offering_detail', offering_id=offering_id)
         else:
-            form = TradeForm(request.POST, user=request.user)
-            if form.is_valid():
-                trade = form.save(commit=False)
-                trade.target_offering = offering
-                trade.proposer = request.user
+            if 'update_my_trade' in request.POST:
+                trade_id = request.POST.get('my_trade_id')
+                quantity = request.POST.get('quantity')
+                trade = Trade.objects.get(id=trade_id, proposer=request.user)
+                trade.quantity = quantity
                 trade.save()
                 return redirect('offering_detail', offering_id=offering_id)
+            elif 'delete_my_trade' in request.POST:
+                trade_id = request.POST.get('my_trade_id')
+                Trade.objects.filter(id=trade_id, proposer=request.user).delete()
+                return redirect('offering_detail', offering_id=offering_id)
+            else:
+                form = TradeForm(request.POST, user=request.user)
+                if form.is_valid():
+                    trade = form.save(commit=False)
+                    trade.target_offering = offering
+                    trade.proposer = request.user
+                    trade.save()
+                    return redirect('offering_detail', offering_id=offering_id)
     
-    trades = offering.incoming_trades.all() if is_owner else None
+    pending_trades = offering.incoming_trades.filter(status='P') if is_owner else None
+    accepted_trades = offering.incoming_trades.filter(status='A') if is_owner else None
+    rejected_trades = offering.incoming_trades.filter(status__in=['R', 'T']) if is_owner else None
     trade_form = TradeForm(user=request.user) if not is_owner else None
-    
+    my_trades = offering.incoming_trades.filter(proposer=request.user) if not is_owner and request.user.is_authenticated else None
+
     template = loader.get_template("marketplace/offering_detail.html")
     context = {
         'offering': offering,
         'is_owner': is_owner,
-        'trades': trades,
+        'pending_trades': pending_trades,
+        'accepted_trades': accepted_trades,
+        'rejected_trades': rejected_trades,
         'trade_form': trade_form,
+        'my_trades': my_trades,
     }
     return HttpResponse(template.render(context, request))
