@@ -1,28 +1,64 @@
-{% load static %}
-<!doctype html>
-<html lang="en-US">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8" />
-  <title>My test page</title>
-  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
+{% block title %}Offerings - Bytteplassen{% endblock %}
 
-</head>
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-warm-text">Offerings</h1>
+        {% if user.is_authenticated %}
+        <a href="{% url 'add_offering' %}"
+           class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition">
+            + Add Offering
+        </a>
+        {% endif %}
+    </div>
 
-<body>
-  <div class="card">
-    <h1>offerings</h1>
-    <a href="{% url 'add_offering' %}"><button>Add New Offering</button></a>
+    <!-- Offerings List -->
     {% if all_offerings %}
-    <ul>
-      {% for offering in all_offerings%}
-      <li><a href="{% url 'offering_detail' offering.id %}">{{ offering.name }}</a></li>
-      {% endfor %}
-    </ul>
+    <div class="space-y-4">
+        {% for offering in all_offerings %}
+        <a href="{% url 'offering_detail' offering.id %}" class="block">
+            <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
+                            <span class="text-warm-muted">·</span>
+                            <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        {% if offering.stock_status == 'I' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                            In Stock
+                        </span>
+                        {% elif offering.stock_status == 'O' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
+                            Out of Stock
+                        </span>
+                        {% elif offering.stock_status == 'D' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+                            Made on Demand
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
     {% else %}
-    <p>There are no offerings.</p>
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+        <p class="text-warm-muted">No offerings yet.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'add_offering' %}" class="text-terra-400 hover:text-terra-500 font-medium">
+            Be the first to add one!
+        </a>
+        {% endif %}
+    </div>
     {% endif %}
-  </div>
-</body>
-
-</html>
+</div>
+{% endblock %}

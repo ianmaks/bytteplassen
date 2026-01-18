@@ -1,8 +1,79 @@
-<html lang="en-US">
-<h2>Sign up</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Sign up</button>
-    </form>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Register - Bytteplassen{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[60vh]">
+    <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-terra-400 mb-2">Join Bytteplassen</h1>
+            <p class="text-warm-muted">Create your account to start trading</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-warm-text mb-2">
+                    Username
+                </label>
+                <input type="text" name="username" id="id_username" required
+                       value="{{ form.username.value|default:'' }}"
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+                {% if form.username.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-warm-text mb-2">
+                    Email
+                </label>
+                <input type="email" name="email" id="id_email" required
+                       value="{{ form.email.value|default:'' }}"
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+                {% if form.email.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_password1" class="block text-sm font-medium text-warm-text mb-2">
+                    Password
+                </label>
+                <input type="password" name="password1" id="id_password1" required
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+                {% if form.password1.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_password2" class="block text-sm font-medium text-warm-text mb-2">
+                    Confirm Password
+                </label>
+                <input type="password" name="password2" id="id_password2" required
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+                {% if form.password2.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-terra-400 text-white py-3 rounded-lg font-medium hover:bg-terra-500 transition">
+                Sign Up
+            </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="mt-6 text-center text-warm-muted">
+            <p>Already have an account?</p>
+            <a href="/" class="text-terra-400 hover:text-terra-500 font-medium">
+                Login here
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

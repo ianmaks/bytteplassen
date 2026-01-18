@@ -1,28 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h2>Login</h2>
+{% block title %}Login - Bytteplassen{% endblock %}
 
-{% if form.errors %}
-    <p>Invalid username or password.</p>
-{% endif %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[60vh]">
+    <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-terra-400 mb-2">Bytteplassen</h1>
+            <p class="text-warm-muted">Welcome back</p>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.username.label_tag }}<br>
-    {{ form.username }}<br><br>
+        <!-- Error Message -->
+        {% if form.errors %}
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
+            Invalid username or password.
+        </div>
+        {% endif %}
 
-    {{ form.password.label_tag }}<br>
-    {{ form.password }}<br><br>
-    <button type="submit">Login</button>
-</form>
+        <!-- Login Form -->
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
 
-    <p>OR</p>
-    <p><a href="{% url 'register' %}">Register new user</a></p>
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-warm-text mb-2">
+                    Username
+                </label>
+                <input type="text" name="username" id="id_username" required
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+            </div>
 
-</body>
-</html>
+            <div>
+                <label for="id_password" class="block text-sm font-medium text-warm-text mb-2">
+                    Password
+                </label>
+                <input type="password" name="password" id="id_password" required
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-terra-400 text-white py-3 rounded-lg font-medium hover:bg-terra-500 transition">
+                Login
+            </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="mt-6 text-center text-warm-muted">
+            <p>Don't have an account?</p>
+            <a href="{% url 'register' %}" class="text-terra-400 hover:text-terra-500 font-medium">
+                Register here
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

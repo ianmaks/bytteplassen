@@ -1,35 +1,79 @@
-{% load static %}
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>{{hobby.name}}</title>
-    <link rel="stylesheet" href="{% static 'marketplace/index.css' %}" />
-  </head>
+{% extends "base.html" %}
 
-  <body>
-    <div class="card">
-      {% if hobby %}
-      <p>{{ hobby.name }}</p>
-      
-      <form method="post" action="{% url 'vote' hobby.id %}">
-        {% csrf_token %}
-        <input type="hidden" name="user" value="{{ request.user.id }}">
-        <input type="hidden" name="hobby" value="{{ hobby.id }}">
+{% block title %}{{ hobby.name }} - Bytteplassen{% endblock %}
 
-      {% if voted %}
-      <p>Votes: You voted for {{hobby.name}}</p>
-      <input type="hidden" name="vote" value="0">
-      <button type="submit"> Remove vote </button>
-      {% else %}
-      <p>You have not voted for {{hobby.name}}</p>
-      <input type="hidden" name="vote" value="1">
-      <button type="submit"> Vote </button>
-      {% endif %}
-      </form>
-      {% else %}
-      <p>There are no hobbies.</p>
-      {% endif %}
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'hobbies' %}" class="text-terra-400 hover:text-terra-500 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Hobbies
+    </a>
+
+    {% if hobby %}
+    <!-- Hobby Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-start justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-warm-text">{{ hobby.name }}</h1>
+                <div class="flex items-center gap-3 mt-2">
+                    {% if hobby.output_type == 'P' %}
+                    <span class="px-3 py-1 text-sm rounded-full bg-terra-100 text-terra-500">Product</span>
+                    {% elif hobby.output_type == 'S' %}
+                    <span class="px-3 py-1 text-sm rounded-full bg-terra-100 text-terra-500">Service</span>
+                    {% elif hobby.output_type == 'I' %}
+                    <span class="px-3 py-1 text-sm rounded-full bg-terra-100 text-terra-500">Item</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vote Count -->
+            <div class="flex items-center gap-2 text-warm-muted">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium">{{ votes }} votes</span>
+            </div>
+        </div>
+
+        <!-- Vote Form -->
+        <div class="mt-6 pt-6 border-t border-gray-100">
+            <form method="post" action="{% url 'vote' hobby.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ request.user.id }}">
+                <input type="hidden" name="hobby" value="{{ hobby.id }}">
+
+                {% if voted %}
+                <div class="flex items-center justify-between">
+                    <p class="text-warm-muted">You voted for this hobby</p>
+                    <input type="hidden" name="vote" value="0">
+                    <button type="submit"
+                            class="px-4 py-2 border border-terra-400 text-terra-400 rounded-lg hover:bg-terra-50 transition">
+                        Remove Vote
+                    </button>
+                </div>
+                {% else %}
+                <div class="flex items-center justify-between">
+                    <p class="text-warm-muted">Show your interest in this hobby</p>
+                    <input type="hidden" name="vote" value="1">
+                    <button type="submit"
+                            class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                        </svg>
+                        Vote
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
     </div>
-  </body>
-</html>
+    {% else %}
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+        <p class="text-warm-muted">Hobby not found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

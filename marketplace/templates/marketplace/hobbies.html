@@ -1,28 +1,49 @@
-{% load static %}
-<!doctype html>
-<html lang="en-US">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8" />
-  <title>My test page</title>
-  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
+{% block title %}Hobbies - Bytteplassen{% endblock %}
 
-</head>
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-warm-text">Hobbies</h1>
+        <p class="text-warm-muted mt-1">Vote for hobbies you're interested in</p>
+    </div>
 
-<body>
-  <div class="card">
-    <h1>Hobbies</h1>
+    <!-- Hobbies List -->
     {% if all_hobbies %}
-    <ul>
-      {% for hobby in all_hobbies%}
-      <li><a href="/marketplace/hobbies/{{ hobby.id }}/">{{ hobby.name }} : {{hobby.vote_count}}
-        </a></li>
-      {% endfor %}
-    </ul>
+    <div class="space-y-4">
+        {% for hobby in all_hobbies %}
+        <a href="{% url 'hobby' hobby.id %}" class="block">
+            <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-warm-text">{{ hobby.name }}</h2>
+                        <div class="flex items-center gap-3 mt-2">
+                            {% if hobby.output_type == 'P' %}
+                            <span class="text-sm text-warm-muted">Product</span>
+                            {% elif hobby.output_type == 'S' %}
+                            <span class="text-sm text-warm-muted">Service</span>
+                            {% elif hobby.output_type == 'I' %}
+                            <span class="text-sm text-warm-muted">Item</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-terra-400">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-medium">{{ hobby.vote_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
     {% else %}
-    <p>There are no hobbies.</p>
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+        <p class="text-warm-muted">No hobbies yet.</p>
+    </div>
     {% endif %}
-  </div>
-</body>
-
-</html>
+</div>
+{% endblock %}

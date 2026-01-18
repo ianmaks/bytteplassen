@@ -1,68 +1,198 @@
-{% load static %}
-<!doctype html>
-<html lang="en-US">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8" />
-  <title>{{ offering.name }}</title>
-  <link rel="stylesheet" href="{% static 'marketplace/index.css' %}">
-</head>
+{% block title %}{{ offering.name }} - Bytteplassen{% endblock %}
 
-<body>
-  <div class="card">
-    <h1>{{ offering.name }}</h1>
-    <p><strong>Description:</strong> {{ offering.description }}</p>
-    <p><strong>Hobby:</strong> {{ offering.hobby }}</p>
-    <p><strong>Producer:</strong> {{ offering.owner.username }}</p>
-    <p><strong>Type:</strong> {{ offering.get_offering_type_display }}</p>
-    {% if offering.stock_status %}
-    <p><strong>Stock Status:</strong> {{ offering.get_stock_status_display }}</p>
-    {% endif %}
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Link -->
+    <a href="{% url 'index' %}" class="text-terra-400 hover:text-terra-500 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Offerings
+    </a>
+
+    <!-- Offering Details Card -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-start justify-between mb-4">
+            <h1 class="text-2xl font-bold text-warm-text">{{ offering.name }}</h1>
+            {% if offering.stock_status %}
+            <div>
+                {% if offering.stock_status == 'I' %}
+                <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">In Stock</span>
+                {% elif offering.stock_status == 'O' %}
+                <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">Out of Stock</span>
+                {% elif offering.stock_status == 'D' %}
+                <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">Made on Demand</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <p class="text-warm-text mb-4">{{ offering.description }}</p>
+
+        <div class="flex items-center gap-4 text-sm text-warm-muted">
+            <span class="px-3 py-1 rounded-full bg-terra-100 text-terra-500">{{ offering.hobby.name }}</span>
+            <span>{{ offering.get_offering_type_display }}</span>
+            <span>by <strong class="text-warm-text">{{ offering.owner.username }}</strong></span>
+        </div>
+    </div>
 
     {% if is_owner %}
-      <h2>Manage Offering</h2>
-      <form method="post">
-        {% csrf_token %}
-        <label for="stock_status">Stock Status:</label>
-        <select name="stock_status" id="stock_status">
-          <option value="">None</option>
-          <option value="I" {% if offering.stock_status == 'I' %}selected{% endif %}>In Stock</option>
-          <option value="O" {% if offering.stock_status == 'O' %}selected{% endif %}>Out of Stock</option>
-          <option value="D" {% if offering.stock_status == 'D' %}selected{% endif %}>Made on Demand</option>
-        </select>
-        <button type="submit" name="update_stock">Update Stock Status</button>
-        <button type="submit" name="delete" onclick="return confirm('Are you sure you want to delete this offering?')">Delete Offering</button>
-      </form>
+    <!-- Owner Section: Manage Offering -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Manage Offering</h2>
 
-      <h2>Incoming Trade Offers</h2>
-      {% for trade in trades %}
-        <div class="trade">
-          <p><strong>From:</strong> {{ trade.proposer.username }}</p>
-          <p><strong>Offering:</strong> {{ trade.offered_offering.name }} (Quantity: {{ trade.quantity }})</p>
-          <p><strong>Message:</strong> {{ trade.message }}</p>
-          <p><strong>Status:</strong> {{ trade.get_status_display }}</p>
-          {% if trade.status == 'P' %}
-            <form method="post" style="display: inline;">
-              {% csrf_token %}
-              <input type="hidden" name="trade_id" value="{{ trade.id }}">
-              <button type="submit" name="action" value="accept">Accept</button>
-              <button type="submit" name="action" value="reject">Reject</button>
-              <button type="submit" name="action" value="too_low">Too Low</button>
-            </form>
-          {% endif %}
+        <form method="post" class="flex flex-wrap items-end gap-4">
+            {% csrf_token %}
+            <div class="flex-1 min-w-[200px]">
+                <label for="stock_status" class="block text-sm font-medium text-warm-text mb-2">
+                    Stock Status
+                </label>
+                <select name="stock_status" id="stock_status"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition bg-white">
+                    <option value="">Not specified</option>
+                    <option value="I" {% if offering.stock_status == 'I' %}selected{% endif %}>In Stock</option>
+                    <option value="O" {% if offering.stock_status == 'O' %}selected{% endif %}>Out of Stock</option>
+                    <option value="D" {% if offering.stock_status == 'D' %}selected{% endif %}>Made on Demand</option>
+                </select>
+            </div>
+            <button type="submit" name="update_stock"
+                    class="px-4 py-3 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition">
+                Update Status
+            </button>
+            <button type="submit" name="delete"
+                    onclick="return confirm('Are you sure you want to delete this offering?')"
+                    class="px-4 py-3 border border-red-400 text-red-500 rounded-lg hover:bg-red-50 transition">
+                Delete
+            </button>
+        </form>
+    </div>
+
+    <!-- Owner Section: Incoming Trade Offers -->
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Incoming Trade Offers</h2>
+
+        {% if trades %}
+        <div class="space-y-4">
+            {% for trade in trades %}
+            <div class="border border-gray-100 rounded-lg p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <p class="font-medium text-warm-text">{{ trade.proposer.username }}</p>
+                        <p class="text-sm text-warm-muted">
+                            Offering: <strong>{{ trade.offered_offering.name }}</strong> (x{{ trade.quantity }})
+                        </p>
+                    </div>
+                    <div>
+                        {% if trade.status == 'P' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-amber-100 text-amber-700">Pending</span>
+                        {% elif trade.status == 'A' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">Accepted</span>
+                        {% elif trade.status == 'R' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">Rejected</span>
+                        {% elif trade.status == 'T' %}
+                        <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700">Too Low</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if trade.message %}
+                <p class="text-warm-muted text-sm mb-3">"{{ trade.message }}"</p>
+                {% endif %}
+
+                {% if trade.status == 'P' %}
+                <form method="post" class="flex gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="trade_id" value="{{ trade.id }}">
+                    <input type="hidden" name="respond_trade" value="1">
+                    <button type="submit" name="action" value="accept"
+                            class="px-3 py-1.5 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                        Accept
+                    </button>
+                    <button type="submit" name="action" value="reject"
+                            class="px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                        Reject
+                    </button>
+                    <button type="submit" name="action" value="too_low"
+                            class="px-3 py-1.5 text-sm border border-gray-300 text-warm-muted rounded-lg hover:bg-gray-50 transition">
+                        Too Low
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
-      {% endfor %}
+        {% else %}
+        <p class="text-warm-muted">No trade offers yet.</p>
+        {% endif %}
+    </div>
+
     {% else %}
-      <h2>Make a Trade Offer</h2>
-      <form method="post">
-        {% csrf_token %}
-        {{ trade_form.as_p }}
-        <button type="submit">Submit Trade Offer</button>
-      </form>
+    <!-- Non-Owner Section: Make Trade Offer -->
+    {% if user.is_authenticated %}
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-warm-text mb-4">Propose a Trade</h2>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Your Offering -->
+            <div>
+                <label for="id_offered_offering" class="block text-sm font-medium text-warm-text mb-2">
+                    Your Offering
+                </label>
+                <select name="offered_offering" id="id_offered_offering" required
+                        class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition bg-white">
+                    <option value="">Select one of your offerings</option>
+                    {% for choice in trade_form.offered_offering.field.queryset %}
+                    <option value="{{ choice.id }}">{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if trade_form.offered_offering.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ trade_form.offered_offering.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Quantity -->
+            <div>
+                <label for="id_quantity" class="block text-sm font-medium text-warm-text mb-2">
+                    Quantity
+                </label>
+                <input type="number" name="quantity" id="id_quantity" min="1" value="1" required
+                       class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition">
+                {% if trade_form.quantity.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ trade_form.quantity.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Message -->
+            <div>
+                <label for="id_message" class="block text-sm font-medium text-warm-text mb-2">
+                    Message (optional)
+                </label>
+                <textarea name="message" id="id_message" rows="3"
+                          placeholder="Add a note to your trade offer..."
+                          class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-terra-400 focus:ring-2 focus:ring-terra-100 outline-none transition resize-none"></textarea>
+                {% if trade_form.message.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ trade_form.message.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-terra-400 text-white py-3 rounded-lg font-medium hover:bg-terra-500 transition">
+                Send Trade Proposal
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+        <p class="text-warm-muted mb-4">Log in to propose a trade</p>
+        <a href="/" class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition inline-block">
+            Login
+        </a>
+    </div>
     {% endif %}
-
-    <a href="{% url 'index' %}">Back to Offerings</a>
-  </div>
-</body>
-
-</html>
+    {% endif %}
+</div>
+{% endblock %}
