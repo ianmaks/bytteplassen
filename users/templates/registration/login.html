@@ -18,9 +18,11 @@
 
     {{ form.password.label_tag }}<br>
     {{ form.password }}<br><br>
-
     <button type="submit">Login</button>
 </form>
+
+    <p>OR</p>
+    <p><a href="{% url 'register' %}">Register new user</a></p>
 
 </body>
 </html>
