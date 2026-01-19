@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.conf import settings
 
 
 class User(models.Model):
@@ -30,8 +31,8 @@ class Hobby(models.Model):
 
 
 class UserHasHobby(models.Model):
-    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    hobby   = models.ForeignKey(Hobby, on_delete=models.CASCADE)
+    user    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Claimed hobby"
