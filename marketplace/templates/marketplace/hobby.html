@@ -70,6 +70,19 @@
             </form>
         </div>
     </div>
+
+    <!-- Related Offerings -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+    <h1 class="text-xl font-bold text-warm-text">Other offerings in this hobby </h1>
+        <div class="flex flex-items-center gap-3 mt-2">
+            {% for offering in offerings %}
+                <a href="{% url 'offering_detail' offering.id %}" class="text-terra-400 hover:text-terra-500 inline-flex items-center gap-1">
+                    <span class="px-3 py-1 text-sm rounded-full bg-terra-100 text-terra-500">{{offering}}</span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
     {% else %}
     <div class="bg-white rounded-xl shadow-sm p-8 text-center">
         <p class="text-warm-muted">Hobby not found.</p>

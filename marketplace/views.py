@@ -38,12 +38,13 @@ def hobby(request, hobby_id):
     hobby = Hobby.objects.get(id=hobby_id)
     has_voted = Vote.objects.filter(user_id=user_id, hobby_id=hobby_id).exists()
     votes = hobby.votes.count()
-
+    related_offerings = Offering.objects.filter(hobby=hobby)
     template = loader.get_template("marketplace/hobby.html")
     context = {
-        "hobby": hobby,
-        "voted": 1 if has_voted else 0,
-        "votes": votes
+        "hobby"     : hobby,
+        "voted"     : 1 if has_voted else 0,
+        "votes"     : votes,
+        "offerings" : related_offerings
     }
     return HttpResponse(template.render(context, request))
 
